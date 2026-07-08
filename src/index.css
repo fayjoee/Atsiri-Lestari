@@ -1,0 +1,217 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0B3525;
+  --color-primary-light: #14553B;
+  --color-primary-dark: #082A1D;
+  --color-accent: #FFBD59;
+  --color-accent-hover: #E5A94E;
+  --color-accent-light: #FFD48A;
+  --color-deep: #12251B;
+  --color-surface: #FAF6EE;
+  --color-muted: #E9ECEF;
+  --color-border: #DEE2E6;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Outfit', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ===== Global Reset & Base ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: #12251B;
+  background-color: #FAF6EE;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F8F9FA;
+}
+::-webkit-scrollbar-thumb {
+  background: #0B3525;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #14553B;
+}
+
+/* ===== Animation Keyframes ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 189, 89, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(255, 189, 89, 0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ===== Utility Animation Classes ===== */
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.4s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ===== Staggered Animation Delays ===== */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* ===== Glass Effect ===== */
+.glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(11, 53, 37, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ===== Gradient Backgrounds ===== */
+.gradient-hero {
+  background: linear-gradient(135deg, #0B3525 0%, #14553B 50%, #12251B 100%);
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, #FFBD59 0%, #E5A94E 100%);
+}
+
+.gradient-overlay {
+  background: linear-gradient(180deg, rgba(11, 53, 37, 0.7) 0%, rgba(18, 37, 27, 0.9) 100%);
+}
+
+/* ===== Section Transitions ===== */
+.section-enter {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.section-enter.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== Custom Checkbox/Radio ===== */
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  accent-color: #0B3525;
+}
+
+/* ===== Number Input Spinner Hide ===== */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
