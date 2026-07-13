@@ -8,7 +8,7 @@
   --color-accent-hover: #E5A94E;
   --color-accent-light: #FFD48A;
   --color-deep: #12251B;
-  --color-surface: #FAF6EE;
+  --color-surface: #F8F9FA;
   --color-muted: #E9ECEF;
   --color-border: #DEE2E6;
 
@@ -24,7 +24,7 @@ html {
 body {
   font-family: var(--font-sans);
   color: #12251B;
-  background-color: #FAF6EE;
+  background-color: #ffffff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -34,7 +34,7 @@ body {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #F8F9FA;
+  background: #14553B;
 }
 ::-webkit-scrollbar-thumb {
   background: #0B3525;

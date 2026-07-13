@@ -72,8 +72,13 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* Info Content */}
-      <div className="p-5 flex flex-col justify-between flex-grow space-y-3">
+      <div className="p-5 flex flex-col justify-between flex-grow space-y-3 text-left">
         <div className="space-y-1">
+          {/* Seller / Toko Name */}
+          <div className="flex items-center space-x-1 text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">
+            <span>🏪</span>
+            <span>{product.sellerName || 'CV. Aroma Nusantara'}</span>
+          </div>
           <h3 className="font-display font-bold text-deep group-hover:text-primary transition-colors text-base line-clamp-1">
             {product.name}
           </h3>

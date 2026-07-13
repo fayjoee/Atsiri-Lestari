@@ -9,9 +9,8 @@ export default function Footer() {
           <div className="md:col-span-2 space-y-4">
             <Link to="/" className="flex items-center space-x-3 group">
               <svg className="w-10 h-10 transition-transform duration-300 group-hover:rotate-12" viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="30" fill="#FFBD59"/>
-                <path d="M32 12 C28 20, 20 28, 20 36 C20 44, 25 50, 32 50 C39 50, 44 44, 44 36 C44 28, 36 20, 32 12Z" fill="#0B3525"/>
-                <path d="M32 22 C30 26, 26 30, 26 34 C26 38, 28 42, 32 42 C36 42, 38 38, 38 34 C38 30, 34 26, 32 22Z" fill="#FFBD59"/>
+                <circle cx="32" cy="32" r="30" fill="#0B3525"/>
+                <path d="M20 32 C20 22, 26 16, 32 16 C40 16, 48 24, 48 32 C48 40, 40 48, 32 48 C26 48, 20 42, 20 32 M48 32 C48 22, 42 16, 32 16 C24 16, 16 24, 16 32 C16 40, 24 48, 32 48 C42 48, 48 42, 48 32" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
               </svg>
               <div className="flex flex-col">
                 <span className="font-display font-bold text-xl tracking-wider text-white">ATSIRI</span>

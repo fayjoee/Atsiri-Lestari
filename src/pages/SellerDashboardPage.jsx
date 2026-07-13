@@ -1,271 +1,457 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 import { formatPrice } from '../context/CartContext'
 
+const PRODUCT_CATEGORIES = [
+  'limbah-padat',
+  'limbah-cair',
+  'produk-turunan',
+]
+
+const CATEGORY_LABELS = {
+  'limbah-padat':    'Limbah Padat',
+  'limbah-cair':     'Limbah Cair',
+  'produk-turunan':  'Produk Turunan',
+}
+
+const STATUS_BADGES = {
+  aktif:     'bg-emerald-100 text-emerald-800',
+  terjual:   'bg-blue-100 text-blue-800',
+  habis:     'bg-rose-100 text-rose-800',
+}
+
 export default function SellerDashboardPage() {
-  const { user, openLogin } = useAuth()
-  const [wasteType, setWasteType] = useState('Sereh Wangi')
-  const [wasteCategory, setWasteCategory] = useState('limbah-padat')
-  const [qty, setQty] = useState('')
-  const [moisture, setMoisture] = useState('')
-  const [price, setPrice] = useState('')
-  const [desc, setDesc] = useState('')
-  const [successMsg, setSuccessMsg] = useState('')
+  const navigate  = useNavigate()
+  const { user, profile, loading, openLogin } = useAuth()
 
-  // Mock active listings for seller
-  const [listings, setListings] = useState([
-    { id: 1, type: 'Nilam', cat: 'Limbah Padat', qty: 1200, unit: 'kg', price: 3200, status: 'Aktif', date: '2026-07-01' },
-    { id: 2, type: 'Cengkeh', cat: 'Limbah Cair', qty: 500, unit: 'liter', price: 6500, status: 'Terjual', date: '2026-06-25' },
-    { id: 3, type: 'Sereh Wangi', cat: 'Limbah Padat', qty: 2500, unit: 'kg', price: 2800, status: 'Verifikasi', date: '2026-07-06' },
-  ])
+  // ─── State: form tambah produk ────────────────────────────────────────────
+  const [name, setName]         = useState('')
+  const [description, setDesc]  = useState('')
+  const [price, setPrice]       = useState('')
+  const [stock, setStock]       = useState('')
+  const [category, setCat]      = useState('limbah-padat')
+  const [moq, setMoq]           = useState('1')
+  const [formError, setFormError]     = useState('')
+  const [formSuccess, setFormSuccess] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Redirect to login if not logged in
-  if (!user || user.type !== 'seller') {
+  // ─── State: daftar produk & info toko ────────────────────────────────────
+  const [products, setProducts]       = useState([])
+  const [sellerProfile, setSellerProfile] = useState(null)
+  const [productsLoading, setProductsLoading] = useState(true)
+
+  // ─── Proteksi route ───────────────────────────────────────────────────────
+  useEffect(() => {
+    if (loading) return
+    if (!user) {
+      openLogin('/dashboard/seller')
+      navigate('/', { replace: true })
+      return
+    }
+    if (profile && !profile.is_seller) {
+      navigate('/menjadi-penjual', { replace: true })
+    }
+  }, [user, profile, loading, navigate, openLogin])
+
+  // ─── Fetch produk & info toko ─────────────────────────────────────────────
+  const fetchData = useCallback(async () => {
+    if (!user) return
+    setProductsLoading(true)
+
+    const [{ data: prods, error: prodErr }, { data: sp, error: spErr }] = await Promise.all([
+      supabase
+        .from('products')
+        .select('*')
+        .eq('seller_id', user.id)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('seller_profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single(),
+    ])
+
+    if (prodErr) console.error('Fetch products error:', prodErr.message)
+    else setProducts(prods || [])
+
+    if (!spErr) setSellerProfile(sp)
+
+    setProductsLoading(false)
+  }, [user])
+
+  useEffect(() => {
+    if (user && profile?.is_seller) {
+      fetchData()
+    }
+  }, [user, profile, fetchData])
+
+  // ─── Submit tambah produk ─────────────────────────────────────────────────
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setFormError('')
+    setFormSuccess('')
+
+    if (!name.trim() || !price || !stock) {
+      setFormError('Nama produk, harga, dan stok wajib diisi.')
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const { error } = await supabase
+        .from('products')
+        .insert({
+          seller_id:   user.id,
+          name:        name.trim(),
+          description: description.trim() || null,
+          price:       Number(price),
+          stock:       Number(stock),
+          category,
+          moq:         Number(moq) || 1,
+        })
+
+      if (error) throw error
+
+      setFormSuccess('Produk berhasil ditambahkan!')
+      setTimeout(() => setFormSuccess(''), 4000)
+
+      // Reset form
+      setName(''); setDesc(''); setPrice(''); setStock(''); setMoq('1')
+
+      // Refresh daftar produk
+      await fetchData()
+    } catch (err) {
+      setFormError(`Gagal menambahkan produk: ${err.message}`)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // ─── Hapus produk ─────────────────────────────────────────────────────────
+  const handleDelete = async (productId) => {
+    if (!window.confirm('Yakin ingin menghapus produk ini?')) return
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', productId)
+      .eq('seller_id', user.id)
+
+    if (error) {
+      alert(`Gagal menghapus: ${error.message}`)
+    } else {
+      await fetchData()
+    }
+  }
+
+  // ─── Statistik ────────────────────────────────────────────────────────────
+  const totalStock  = products.reduce((s, p) => s + (p.stock || 0), 0)
+  const totalValue  = products.reduce((s, p) => s + (p.price * (p.stock || 0)), 0)
+
+  // ─── Loading / Auth guard ─────────────────────────────────────────────────
+  if (loading || !user || (profile && !profile.is_seller)) {
     return (
-      <div className="min-h-screen pt-32 pb-16 flex flex-col items-center justify-center text-center space-y-5 px-4 bg-[#FAF6EE]">
-        <span className="text-6xl">👨‍🌾</span>
-        <div className="space-y-2">
-          <h2 className="font-display font-extrabold text-2xl text-deep">
-            Akses Khusus Petani & Penyuling Atsiri
-          </h2>
-          <p className="text-sm text-gray-500 max-w-md leading-relaxed mx-auto">
-            Halaman ini digunakan untuk mengunggah stok limbah padat atau cair hasil sulingan Anda untuk dijual secara tetap (Fixed Price) kepada Mitra Industri B2B.
-          </p>
+      <div className="min-h-screen bg-[#FAF6EE] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <svg className="animate-spin w-10 h-10 text-primary" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          <p className="text-sm font-medium text-gray-500">Memuat dashboard...</p>
         </div>
-        <button
-          onClick={() => openLogin('/jual')}
-          className="px-8 py-3.5 bg-primary hover:bg-primary-light text-white font-bold rounded-xl text-sm transition-all cursor-pointer shadow-md"
-        >
-          Masuk sebagai Penjual/Petani
-        </button>
       </div>
     )
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!qty || !price || !moisture) {
-      alert('Mohon lengkapi data stok limbah Anda.')
-      return
-    }
-
-    const newListing = {
-      id: Date.now(),
-      type: wasteType,
-      cat: wasteCategory === 'limbah-padat' ? 'Limbah Padat' : 'Limbah Cair',
-      qty: Number(qty),
-      unit: wasteCategory === 'limbah-padat' ? 'kg' : 'liter',
-      price: Number(price),
-      status: 'Verifikasi',
-      date: new Date().toISOString().split('T')[0]
-    }
-
-    setListings((prev) => [newListing, ...prev])
-    setQty('')
-    setMoisture('')
-    setPrice('')
-    setDesc('')
-    setSuccessMsg('Stok limbah berhasil diajukan! Admin kami akan memverifikasi spesifikasi kadar air dalam 1x24 jam.')
-    setTimeout(() => setSuccessMsg(''), 5000)
-  }
-
-  const earnings = listings
-    .filter(l => l.status === 'Terjual')
-    .reduce((sum, l) => sum + (l.qty * l.price), 0)
-
   return (
     <div className="bg-[#FAF6EE] min-h-screen pt-24 pb-16 text-left">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-gray-200/50 pb-6">
           <div className="space-y-1">
             <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-deep">
-              Portal Penjualan Petani
+              Portal Penjualan
             </h1>
             <p className="text-xs sm:text-sm text-gray-500">
-              Selamat datang kembali, <span className="font-bold text-primary">{user.name}</span> ({user.role})
+              Selamat datang kembali,{' '}
+              <span className="font-bold text-primary">
+                {sellerProfile?.store_name || profile?.full_name}
+              </span>
+              {sellerProfile?.category && (
+                <span className="ml-1 text-gray-400">· {sellerProfile.category}</span>
+              )}
             </p>
           </div>
-          
-          {/* Dashboard Stats */}
-          <div className="bg-white border border-gray-100 p-4 rounded-xl shadow-sm flex items-center space-x-4">
-            <span className="text-2xl">💰</span>
-            <div className="text-left">
-              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Pendapatan Terjual</p>
-              <p className="font-display font-black text-emerald-600 text-lg">{formatPrice(earnings)}</p>
+
+          {/* Stats Cards */}
+          <div className="flex gap-3 flex-wrap">
+            <div className="bg-white border border-gray-100 p-4 rounded-xl shadow-sm flex items-center space-x-3">
+              <span className="text-2xl">📦</span>
+              <div className="text-left">
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Produk</p>
+                <p className="font-display font-black text-primary text-lg">{products.length}</p>
+              </div>
+            </div>
+            <div className="bg-white border border-gray-100 p-4 rounded-xl shadow-sm flex items-center space-x-3">
+              <span className="text-2xl">📊</span>
+              <div className="text-left">
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Stok</p>
+                <p className="font-display font-black text-deep text-lg">{totalStock.toLocaleString('id-ID')}</p>
+              </div>
+            </div>
+            <div className="bg-white border border-gray-100 p-4 rounded-xl shadow-sm flex items-center space-x-3">
+              <span className="text-2xl">💰</span>
+              <div className="text-left">
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Nilai Inventori</p>
+                <p className="font-display font-black text-emerald-600 text-lg">{formatPrice(totalValue)}</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Dashboard Split columns */}
+        {/* Info Toko (bila ada) */}
+        {sellerProfile && (
+          <div className="mb-8 bg-primary/5 border border-primary/10 rounded-2xl px-5 py-4 flex flex-col sm:flex-row gap-4 sm:items-center justify-between">
+            <div className="space-y-0.5">
+              <p className="font-bold text-primary text-sm flex items-center gap-1.5">
+                <span>🏪</span>
+                {sellerProfile.store_name}
+              </p>
+              {sellerProfile.description && (
+                <p className="text-xs text-gray-500 line-clamp-2 max-w-xl">{sellerProfile.description}</p>
+              )}
+              {sellerProfile.address && (
+                <p className="text-[11px] text-gray-400 flex items-center gap-1">
+                  <span>📍</span>{sellerProfile.address}
+                </p>
+              )}
+            </div>
+            <span className="shrink-0 text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full">
+              ✓ Toko Aktif
+            </span>
+          </div>
+        )}
+
+        {/* Main Split */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Submission Form (Sell Waste) */}
+
+          {/* ── Form Tambah Produk ── */}
           <div className="lg:col-span-5 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-6">
             <h3 className="font-display font-bold text-deep text-lg border-b border-gray-100 pb-3 flex items-center space-x-2">
               <span>🌾</span>
-              <span>Jual Stok Limbah Baru</span>
+              <span>Tambah Produk Baru</span>
             </h3>
 
-            {successMsg && (
-              <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold p-3.5 rounded-xl">
-                {successMsg}
+            {formSuccess && (
+              <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold p-3.5 rounded-xl flex items-center gap-2">
+                <span>✅</span>
+                {formSuccess}
+              </div>
+            )}
+
+            {formError && (
+              <div className="bg-rose-50 border border-rose-100 text-rose-600 text-xs font-bold p-3.5 rounded-xl">
+                {formError}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Plant type */}
+
+              {/* Nama Produk */}
               <div className="space-y-1.5">
                 <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                  Jenis Tanaman Atsiri
+                  Nama Produk <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Contoh: Ampas Sereh Wangi Kering"
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm"
+                />
+              </div>
+
+              {/* Kategori */}
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
+                  Kategori <span className="text-rose-500">*</span>
                 </label>
                 <select
-                  value={wasteType}
-                  onChange={(e) => setWasteType(e.target.value)}
+                  value={category}
+                  onChange={(e) => setCat(e.target.value)}
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm bg-white"
                 >
-                  {['Sereh Wangi', 'Nilam', 'Cengkeh', 'Kayu Putih', 'Pala', 'Gaharu', 'Cendana', 'Pinus'].map((p) => (
-                    <option key={p} value={p}>{p}</option>
+                  {PRODUCT_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>{CATEGORY_LABELS[cat]}</option>
                   ))}
                 </select>
               </div>
 
-              {/* Category */}
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                  Bentuk Limbah
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setWasteCategory('limbah-padat')}
-                    className={`py-2 border rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      wasteCategory === 'limbah-padat' ? 'bg-primary border-primary text-white' : 'bg-white border-gray-200 text-gray-600'
-                    }`}
-                  >
-                    Limbah Padat (Ampas)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setWasteCategory('limbah-cair')}
-                    className={`py-2 border rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      wasteCategory === 'limbah-cair' ? 'bg-primary border-primary text-white' : 'bg-white border-gray-200 text-gray-600'
-                    }`}
-                  >
-                    Limbah Cair (Kondensat)
-                  </button>
+              {/* Harga & Stok */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
+                    Harga (Rp) <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="3500"
+                    min="0"
+                    required
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
+                    Stok (unit) <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={stock}
+                    onChange={(e) => setStock(e.target.value)}
+                    placeholder="1000"
+                    min="0"
+                    required
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm"
+                  />
                 </div>
               </div>
 
-              {/* Quantity */}
+              {/* MOQ */}
               <div className="space-y-1.5">
                 <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                  Jumlah Pasokan ({wasteCategory === 'limbah-padat' ? 'kg' : 'liter'})
+                  Min. Order (MOQ)
                 </label>
                 <input
                   type="number"
-                  value={qty}
-                  onChange={(e) => setQty(e.target.value)}
-                  placeholder="Contoh: 1000"
+                  value={moq}
+                  onChange={(e) => setMoq(e.target.value)}
+                  placeholder="1"
+                  min="1"
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm"
                 />
               </div>
 
-              {/* Moisture / Standar Pengeringan */}
+              {/* Deskripsi */}
               <div className="space-y-1.5">
                 <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                  Estimasi Kadar Air / Moisture (%)
-                </label>
-                <input
-                  type="text"
-                  value={moisture}
-                  onChange={(e) => setMoisture(e.target.value)}
-                  placeholder="Contoh: 15% atau Kering Sempurna"
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm"
-                />
-              </div>
-
-              {/* Requested Fixed Price */}
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                  Harga Fixed yang Diajukan (Rp / satuan)
-                </label>
-                <input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="Contoh: 3000"
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm"
-                />
-              </div>
-
-              {/* Description */}
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                  Deskripsi / Catatan Tambahan
+                  Deskripsi <span className="text-gray-400 font-normal">(opsional)</span>
                 </label>
                 <textarea
-                  value={desc}
+                  value={description}
                   onChange={(e) => setDesc(e.target.value)}
-                  rows="2"
-                  placeholder="Kondisi pengeringan, tanggal penyulingan..."
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm"
+                  rows={2}
+                  placeholder="Kondisi, asal daerah, kadar air, dst..."
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm resize-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 bg-primary hover:bg-primary-light text-white font-bold rounded-xl text-sm transition-all cursor-pointer text-center"
+                disabled={isSubmitting}
+                className="w-full py-3 bg-primary hover:bg-primary-light text-white font-bold rounded-xl text-sm transition-all cursor-pointer text-center disabled:opacity-60 flex items-center justify-center gap-2"
               >
-                Ajukan Stok Limbah
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    <span>Menyimpan...</span>
+                  </>
+                ) : (
+                  '+ Tambah Produk'
+                )}
               </button>
             </form>
           </div>
 
-          {/* List of Active Listings */}
+          {/* ── Daftar Produk ── */}
           <div className="lg:col-span-7 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-6">
-            <h3 className="font-display font-bold text-deep text-lg border-b border-gray-100 pb-3 flex items-center space-x-2">
-              <span>📋</span>
-              <span>Daftar Pengajuan Stok Anda</span>
+            <h3 className="font-display font-bold text-deep text-lg border-b border-gray-100 pb-3 flex items-center justify-between">
+              <span className="flex items-center space-x-2">
+                <span>📋</span>
+                <span>Produk Saya</span>
+              </span>
+              {products.length > 0 && (
+                <span className="text-xs font-semibold text-gray-400 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-full">
+                  {products.length} produk
+                </span>
+              )}
             </h3>
 
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-100 text-xs sm:text-sm text-left">
-                <thead>
-                  <tr className="text-gray-500 font-bold">
-                    <th className="pb-3">Tanggal</th>
-                    <th className="pb-3">Jenis Limbah</th>
-                    <th className="pb-3">Jumlah</th>
-                    <th className="pb-3">Harga Tetap</th>
-                    <th className="pb-3 text-right">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {listings.map((l) => (
-                    <tr key={l.id} className="text-gray-700">
-                      <td className="py-3.5 text-gray-500 font-medium">{l.date}</td>
-                      <td className="py-3.5">
-                        <span className="font-bold text-deep block">{l.type}</span>
-                        <span className="text-[10px] text-gray-400">{l.cat}</span>
-                      </td>
-                      <td className="py-3.5 font-semibold text-deep">{l.qty.toLocaleString('id-ID')} {l.unit}</td>
-                      <td className="py-3.5 font-bold text-primary">{formatPrice(l.price)}</td>
-                      <td className="py-3.5 text-right">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          l.status === 'Aktif' ? 'bg-emerald-100 text-emerald-800' :
-                          l.status === 'Terjual' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'
-                        }`}>
-                          {l.status}
-                        </span>
-                      </td>
+            {productsLoading ? (
+              <div className="flex items-center justify-center py-12 gap-3">
+                <svg className="animate-spin w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+                <span className="text-sm text-gray-500">Memuat produk...</span>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
+                <span className="text-5xl">🌱</span>
+                <div>
+                  <p className="font-bold text-deep text-base">Belum ada produk</p>
+                  <p className="text-xs text-gray-500 mt-1">Tambah produk pertama Anda menggunakan form di sebelah kiri.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-100 text-xs sm:text-sm text-left">
+                  <thead>
+                    <tr className="text-gray-500 font-bold">
+                      <th className="pb-3 pr-4">Nama Produk</th>
+                      <th className="pb-3 pr-4">Harga</th>
+                      <th className="pb-3 pr-4">Stok</th>
+                      <th className="pb-3 pr-4">Kategori</th>
+                      <th className="pb-3 text-right">Aksi</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {products.map((prod) => (
+                      <tr key={prod.id} className="text-gray-700 hover:bg-gray-50/50 transition-colors">
+                        <td className="py-3.5 pr-4">
+                          <span className="font-bold text-deep block line-clamp-1">{prod.name}</span>
+                          {prod.moq > 1 && (
+                            <span className="text-[10px] text-gray-400">MOQ: {prod.moq}</span>
+                          )}
+                        </td>
+                        <td className="py-3.5 pr-4 font-bold text-primary whitespace-nowrap">
+                          {formatPrice(prod.price)}
+                        </td>
+                        <td className="py-3.5 pr-4">
+                          <span className={`font-semibold ${prod.stock === 0 ? 'text-rose-500' : 'text-deep'}`}>
+                            {prod.stock.toLocaleString('id-ID')}
+                          </span>
+                        </td>
+                        <td className="py-3.5 pr-4">
+                          <span className="text-[10px] bg-gray-50 border border-gray-100 text-gray-600 px-2 py-1 rounded-lg font-semibold whitespace-nowrap">
+                            {CATEGORY_LABELS[prod.category] || prod.category}
+                          </span>
+                        </td>
+                        <td className="py-3.5 text-right">
+                          <button
+                            onClick={() => handleDelete(prod.id)}
+                            className="text-[10px] font-bold text-rose-500 hover:text-rose-700 hover:bg-rose-50 px-2 py-1 rounded-lg transition-colors cursor-pointer"
+                          >
+                            Hapus
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   )

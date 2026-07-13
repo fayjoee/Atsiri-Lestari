@@ -7,8 +7,6 @@ export default function FilterSidebar({
   onChangeSearch,
   priceRange,
   onChangePriceRange,
-  showOnlyWholesale,
-  onToggleWholesale,
   onResetFilters,
   maxPriceLimit
 }) {
@@ -100,20 +98,6 @@ export default function FilterSidebar({
         </div>
       </div>
 
-      {/* Wholesale Filter Toggle */}
-      <div className="pt-2 border-t border-gray-100">
-        <label className="flex items-center space-x-3 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={showOnlyWholesale}
-            onChange={(e) => onToggleWholesale(e.target.checked)}
-            className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary accent-primary"
-          />
-          <span className="text-sm font-semibold text-gray-700">
-            Hanya Pembelian B2B / Grosir
-          </span>
-        </label>
-      </div>
 
       {/* Reset Filter Button */}
       <button

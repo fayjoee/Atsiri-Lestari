@@ -78,10 +78,17 @@ export default function ProductDetailPage() {
               <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-deep leading-tight pt-1">
                 {product.name}
               </h1>
-              <div className="flex items-center space-x-2 text-sm">
-                <span className="text-amber-500 text-base">★★★★★</span>
-                <span className="font-bold text-gray-700">{product.rating}</span>
-                <span className="text-gray-400">({product.reviewCount} ulasan)</span>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm pt-1.5">
+                <div className="flex items-center space-x-1.5 text-primary font-bold">
+                  <span>🏪 Vendor:</span>
+                  <span className="underline decoration-accent underline-offset-4">{product.sellerName || 'CV. Aroma Nusantara'}</span>
+                </div>
+                <span className="hidden sm:inline text-gray-300">|</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-amber-500 text-base">★</span>
+                  <span className="font-bold text-gray-700">{product.rating}</span>
+                  <span className="text-gray-400">({product.reviewCount} ulasan)</span>
+                </div>
               </div>
             </div>
 
@@ -177,7 +184,10 @@ export default function ProductDetailPage() {
               {relatedProducts.map((p) => (
                 <div key={p.id} className="bg-white border border-gray-100 rounded-2xl p-4 flex flex-col justify-between hover:shadow-lg transition-shadow">
                   <div className="space-y-2">
-                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">{p.categoryLabel}</span>
+                    <div className="flex justify-between items-center text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                      <span>{p.categoryLabel}</span>
+                      <span>🏪 {p.sellerName || 'CV. Aroma'}</span>
+                    </div>
                     <h4 className="font-bold text-deep text-sm line-clamp-1">{p.name}</h4>
                     <p className="text-xs text-gray-500 line-clamp-2">{p.description}</p>
                   </div>

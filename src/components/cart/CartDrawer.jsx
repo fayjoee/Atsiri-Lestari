@@ -1,9 +1,11 @@
 import { useCart, useCartDispatch, formatPrice } from '../../context/CartContext'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 
 export default function CartDrawer({ isOpen, onClose }) {
   const { items, itemCount, subtotal, shippingCost, total } = useCart()
   const dispatch = useCartDispatch()
+  const { user, openLogin } = useAuth()
 
   if (!isOpen) return null
 
@@ -139,8 +141,16 @@ export default function CartDrawer({ isOpen, onClose }) {
                   Kosongkan
                 </button>
                 <Link
-                  to="/checkout"
-                  onClick={onClose}
+                  to={user ? "/checkout" : "#"}
+                  onClick={(e) => {
+                    if (!user) {
+                      e.preventDefault()
+                      onClose()
+                      openLogin('/checkout')
+                    } else {
+                      onClose()
+                    }
+                  }}
                   className="flex-2 py-3.5 bg-primary hover:bg-primary-light text-white font-bold rounded-xl text-sm shadow-md hover:shadow-primary/20 transition-all duration-300 transform active:scale-95 text-center cursor-pointer"
                 >
                   Lanjut ke Checkout

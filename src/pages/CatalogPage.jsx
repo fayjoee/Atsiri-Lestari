@@ -7,7 +7,6 @@ export default function CatalogPage() {
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [priceRange, setPriceRange] = useState(150000)
-  const [showOnlyWholesale, setShowOnlyWholesale] = useState(false)
   
   // Interactive Solution Modal State
   const [solutionModalPlant, setSolutionModalPlant] = useState(null)
@@ -67,19 +66,14 @@ export default function CatalogPage() {
       if (product.price > priceRange) {
         return false
       }
-      // Wholesale Filter
-      if (showOnlyWholesale && !product.isWholesale) {
-        return false
-      }
       return true
     })
-  }, [selectedCategory, searchTerm, priceRange, showOnlyWholesale])
+  }, [selectedCategory, searchTerm, priceRange])
 
   const handleResetFilters = () => {
     setSelectedCategory(null)
     setSearchTerm('')
     setPriceRange(maxPriceLimit)
-    setShowOnlyWholesale(false)
   }
 
   return (
@@ -108,8 +102,6 @@ export default function CatalogPage() {
               onChangeSearch={setSearchTerm}
               priceRange={priceRange}
               onChangePriceRange={setPriceRange}
-              showOnlyWholesale={showOnlyWholesale}
-              onToggleWholesale={setShowOnlyWholesale}
               onResetFilters={handleResetFilters}
               maxPriceLimit={maxPriceLimit}
             />

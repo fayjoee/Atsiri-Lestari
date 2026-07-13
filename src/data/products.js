@@ -747,6 +747,21 @@ export const products = [
   },
 ];
 
+// Enrich products with sellerName for B2B Trust
+const sellers = [
+  'CV. Aroma Nusantara',
+  'Kelompok Tani Lestari',
+  'Koperasi Atsiri Sukabumi',
+  'CV. Priangan Atsiri',
+  'PT. Sinergi Agro Atsiri',
+  'UD. Tani Makmur',
+  'Kelompok Tani Gunung Sanggabuana'
+];
+
+products.forEach((product, index) => {
+  product.sellerName = sellers[index % sellers.length];
+});
+
 // ================================================================
 //  KATEGORI
 // ================================================================
