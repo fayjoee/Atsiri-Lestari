@@ -32,6 +32,20 @@ export function AuthProvider({ children }) {
     let mounted = true
 
     const init = async () => {
+      // Cek apakah ada code (PKCE flow) di URL query
+      const params = new URLSearchParams(window.location.search)
+      const code = params.get('code')
+      if (code) {
+        try {
+          await supabase.auth.exchangeCodeForSession(code)
+          // Hapus ?code=... dari URL
+          const newUrl = window.location.pathname + window.location.hash
+          window.history.replaceState(null, document.title, newUrl || '/')
+        } catch (err) {
+          console.error('Error exchanging PKCE code:', err.message)
+        }
+      }
+
       const { data: { session: currentSession } } = await supabase.auth.getSession()
 
       if (!mounted) return
@@ -39,6 +53,12 @@ export function AuthProvider({ children }) {
       if (currentSession?.user) {
         setSession(currentSession)
         setUser(currentSession.user)
+
+        // Bersihkan hash dari URL jika ada access_token (implicit flow)
+        if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('id_token'))) {
+          window.history.replaceState(null, document.title, window.location.pathname + window.location.search)
+        }
+
         const prof = await fetchProfile(currentSession.user.id)
         if (mounted) setProfile(prof)
       }
@@ -55,6 +75,12 @@ export function AuthProvider({ children }) {
         if (newSession?.user) {
           setSession(newSession)
           setUser(newSession.user)
+
+          // Bersihkan hash dari URL jika ada access_token (implicit flow)
+          if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('id_token'))) {
+            window.history.replaceState(null, document.title, window.location.pathname + window.location.search)
+          }
+
           // Fetch profile — bisa ada delay saat trigger baru jalan
           // Coba beberapa kali kalau user baru
           let prof = await fetchProfile(newSession.user.id)
@@ -71,7 +97,7 @@ export function AuthProvider({ children }) {
           setProfile(null)
         }
 
-        if (loading) setLoading(false)
+        setLoading(false)
       }
     )
 
