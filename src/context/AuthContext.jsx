@@ -32,35 +32,46 @@ export function AuthProvider({ children }) {
     let mounted = true
 
     const init = async () => {
+      console.log('[AuthContext Debug] init() running...')
+
       // Cek apakah ada code (PKCE flow) di URL query
       const params = new URLSearchParams(window.location.search)
       const code = params.get('code')
+      console.log('[AuthContext Debug] Query code parameter:', code)
       if (code) {
         try {
+          console.log('[AuthContext Debug] Exchanging PKCE code for session...')
           await supabase.auth.exchangeCodeForSession(code)
           // Hapus ?code=... dari URL
           const newUrl = window.location.pathname + window.location.hash
-          window.history.replaceState(null, document.title, newUrl || '/')
+          window.history.replaceState(null, '', newUrl || '/')
         } catch (err) {
-          console.error('Error exchanging PKCE code:', err.message)
+          console.error('[AuthContext Debug] Error exchanging PKCE code:', err.message)
         }
       }
 
-      const { data: { session: currentSession } } = await supabase.auth.getSession()
+      console.log('[AuthContext Debug] Calling getSession()...')
+      const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession()
+      console.log('[AuthContext Debug] getSession() response:', { currentSession, error: sessionError })
 
       if (!mounted) return
 
       if (currentSession?.user) {
+        console.log('[AuthContext Debug] User found in session:', currentSession.user.email)
         setSession(currentSession)
         setUser(currentSession.user)
 
         // Bersihkan hash dari URL jika ada access_token (implicit flow)
         if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('id_token'))) {
-          window.history.replaceState(null, document.title, window.location.pathname + window.location.search)
+          console.log('[AuthContext Debug] Hash access_token found in URL. Cleaning URL.')
+          window.history.replaceState(null, '', window.location.pathname)
         }
 
         const prof = await fetchProfile(currentSession.user.id)
+        console.log('[AuthContext Debug] Fetched profile:', prof)
         if (mounted) setProfile(prof)
+      } else {
+        console.log('[AuthContext Debug] No session found during init()')
       }
       if (mounted) setLoading(false)
     }
@@ -70,6 +81,7 @@ export function AuthProvider({ children }) {
     // Subscribe ke perubahan session (login/logout/token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
+        console.log('[AuthContext Debug] onAuthStateChange event triggered:', event, 'session user:', newSession?.user?.email)
         if (!mounted) return
 
         if (newSession?.user) {
@@ -78,20 +90,24 @@ export function AuthProvider({ children }) {
 
           // Bersihkan hash dari URL jika ada access_token (implicit flow)
           if (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('id_token'))) {
-            window.history.replaceState(null, document.title, window.location.pathname + window.location.search)
+            console.log('[AuthContext Debug] Hash access_token found in onAuthStateChange. Cleaning URL.')
+            window.history.replaceState(null, '', window.location.pathname)
           }
 
           // Fetch profile — bisa ada delay saat trigger baru jalan
           // Coba beberapa kali kalau user baru
           let prof = await fetchProfile(newSession.user.id)
           if (!prof && event === 'SIGNED_IN') {
+            console.log('[AuthContext Debug] Profile not found, waiting for trigger...')
             // Tunggu sebentar supaya trigger handle_new_user sempat jalan
             await new Promise(r => setTimeout(r, 800))
             prof = await fetchProfile(newSession.user.id)
           }
+          console.log('[AuthContext Debug] Profile set to:', prof)
           setProfile(prof)
           setShowLoginModal(false)
         } else {
+          console.log('[AuthContext Debug] No user in session. Resetting auth state.')
           setSession(null)
           setUser(null)
           setProfile(null)
@@ -120,12 +136,41 @@ export function AuthProvider({ children }) {
       provider: 'google',
       options: {
         redirectTo: window.location.origin,
+        flowType: 'implicit',
       },
     })
     if (error) {
       console.error('Google sign-in error:', error.message)
       throw error
     }
+  }, [])
+
+  // ─── Login dengan Email & Password ────────────────────────────────────────
+  const signInWithEmail = useCallback(async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    if (error) throw error
+    return data
+  }, [])
+
+  // ─── Daftar dengan Email & Password ───────────────────────────────────────
+  const signUpWithEmail = useCallback(async (email, password) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+    if (error) throw error
+    return data
+  }, [])
+
+  // ─── Reset Password untuk Email ──────────────────────────────────────────
+  const resetPassword = useCallback(async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin,
+    })
+    if (error) throw error
   }, [])
 
   // ─── Logout ───────────────────────────────────────────────────────────────
@@ -160,6 +205,9 @@ export function AuthProvider({ children }) {
 
       // Actions
       signInWithGoogle,
+      signInWithEmail,
+      signUpWithEmail,
+      resetPassword,
       signOut,
       logout,           // alias signOut (backward compat)
       openLogin,
