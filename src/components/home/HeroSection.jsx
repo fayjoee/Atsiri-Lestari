@@ -23,17 +23,13 @@ export default function HeroSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Text Content */}
           <div className="lg:col-span-7 space-y-6 text-left animate-fade-in-up">
-            <div className="inline-flex items-center space-x-2 bg-primary-light/40 border border-primary-light/60 px-3.5 py-1.5 rounded-full text-accent text-xs sm:text-sm font-semibold tracking-wider uppercase">
-              <span className="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
-              <span>Inisiatif Bioekonomi Sirkular Nusantara</span>
-            </div>
-            
+
             <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl text-white leading-tight">
-              Atsiri Lestari: Ubah Limbah Penyulingan Menjadi <span className="text-accent">Cuan</span> dan Kelestarian Bumi
+              Jual &amp; Beli Limbah Atsiri, Mudah dan <span className="text-accent">Menguntungkan</span>
             </h1>
-            
+
             <p className="text-gray-300 text-base sm:text-lg lg:text-xl font-normal leading-relaxed max-w-2xl">
-              Platform modern yang memberdayakan penyuling lokal dan menghubungkan mitra industri untuk memanfaatkan limbah cair dan padat minyak atsiri menjadi produk bernilai tambah tinggi dengan skema harga tetap.
+              Atsiri Lestari hadir sebagai tempat belanja dan jual limbah hasil penyulingan atsiri — ampas, hydrosol, hingga produk olahannya. Cocok untuk penyuling yang ingin menambah penghasilan dan pembeli yang butuh bahan baku berkualitas.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -41,7 +37,7 @@ export default function HeroSection() {
                 to="/katalog"
                 className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-xl text-deep gradient-accent shadow-lg hover:shadow-accent/20 transition-all duration-300 transform hover:-translate-y-1 hover:brightness-110 active:translate-y-0 text-center"
               >
-                Lihat Katalog Produk
+                Lihat Daftar Limbah
                 <svg className="w-5 h-5 ml-2.5 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                 </svg>
@@ -50,7 +46,7 @@ export default function HeroSection() {
                 to="/tutorial"
                 className="inline-flex items-center justify-center px-8 py-4 border-2 border-primary-light text-base font-bold rounded-xl text-white bg-primary/20 backdrop-blur-sm hover:bg-primary-light/40 hover:border-accent/50 transition-all duration-300 transform hover:-translate-y-1 active:translate-y-0 text-center"
               >
-                Pelajari Tutorial Pengolahan
+                Cara Mengolah Limbah
               </Link>
             </div>
           </div>
@@ -61,20 +57,20 @@ export default function HeroSection() {
               {/* Outer decorative circle with dashed outline */}
               <div className="absolute inset-0 rounded-full border-2 border-dashed border-accent/30 animate-spin" style={{ animationDuration: '30s' }}></div>
               <div className="absolute inset-4 rounded-full border border-primary-light/50 animate-spin" style={{ animationDuration: '20s', animationDirection: 'reverse' }}></div>
-              
+
               {/* Inner glowing circle */}
               <div className="absolute inset-10 bg-gradient-to-tr from-primary-light/40 to-accent/20 rounded-full blur-2xl"></div>
 
               {/* Central Leaf/Drop SVG Icon */}
               <div className="absolute inset-12 bg-deep/90 border border-primary-light/60 rounded-full flex flex-col items-center justify-center shadow-2xl p-6 text-center group">
                 <svg className="w-24 h-24 text-accent transition-transform duration-500 group-hover:scale-110 animate-float" viewBox="0 0 64 64" fill="none">
-                  <path d="M32 10 C26 22, 16 30, 16 38 C16 48, 23 54, 32 54 C41 54, 48 48, 48 38 C48 30, 38 22, 32 10Z" fill="currentColor" opacity="0.15"/>
-                  <path d="M32 12 C28 20, 20 28, 20 36 C20 44, 25 50, 32 50 C39 50, 44 44, 44 36 C44 28, 36 20, 32 12Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M32 20 C32 20, 27 26, 27 34 C27 40, 32 44, 32 44" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M32 12 L32 50" stroke="currentColor" strokeWidth="1.5" stroke-dasharray="4 4" opacity="0.5"/>
+                  <path d="M32 10 C26 22, 16 30, 16 38 C16 48, 23 54, 32 54 C41 54, 48 48, 48 38 C48 30, 38 22, 32 10Z" fill="currentColor" opacity="0.15" />
+                  <path d="M32 12 C28 20, 20 28, 20 36 C20 44, 25 50, 32 50 C39 50, 44 44, 44 36 C44 28, 36 20, 32 12Z" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M32 20 C32 20, 27 26, 27 34 C27 40, 32 44, 32 44" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M32 12 L32 50" stroke="currentColor" strokeWidth="1.5" stroke-dasharray="4 4" opacity="0.5" />
                 </svg>
-                <div className="mt-4 font-display font-bold text-white text-lg tracking-wide uppercase">Bioekonomi</div>
-                <div className="text-accent text-xs font-semibold tracking-widest uppercase mt-0.5">Sirkular Lestari</div>
+                <div className="mt-4 font-display font-bold text-white text-lg tracking-wide uppercase">Limbah Atsiri</div>
+                <div className="text-accent text-xs font-semibold tracking-widest uppercase mt-0.5">Bernilai & Lestari</div>
               </div>
 
               {/* Mini cards floating around */}
@@ -97,8 +93,8 @@ export default function HeroSection() {
               <div className="absolute -bottom-6 left-12 bg-deep border border-primary-light/60 p-3 rounded-lg shadow-xl flex items-center space-x-2 animate-float" style={{ animationDelay: '2s' }}>
                 <span className="text-2xl">♻️</span>
                 <div className="text-left">
-                  <div className="text-[10px] text-gray-400 font-bold uppercase">Hasil Olahan</div>
-                  <div className="text-xs font-extrabold text-white">Briket & Kompos</div>
+                  <div className="text-[10px] text-gray-400 font-bold uppercase">Produk Olahan</div>
+                  <div className="text-xs font-extrabold text-white">Briket &amp; Pupuk Organik</div>
                 </div>
               </div>
             </div>

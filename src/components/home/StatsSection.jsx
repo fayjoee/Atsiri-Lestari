@@ -6,8 +6,8 @@ export default function StatsSection() {
       id: 1,
       value: 97,
       suffix: '%',
-      label: 'Bahan Baku Penyulingan Menjadi Limbah',
-      sublabel: 'Rata-rata 97% massa tanaman atsiri terbuang begitu saja setelah disuling uap.',
+      label: 'Bahan Tanaman Terbuang Setelah Disuling',
+      sublabel: 'Dari setiap 100 kg tanaman atsiri yang disuling, hampir 97 kg sisanya jadi limbah yang bisa dijual.',
       icon: (
         <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -18,8 +18,8 @@ export default function StatsSection() {
       id: 2,
       value: 10,
       suffix: '+',
-      label: 'Ubah Limbah Jadi Produk Bernilai Tinggi',
-      sublabel: 'Dari briket, kompos organik, pestisida nabati, hingga disinfektan aromatik.',
+      label: 'Jenis Produk Bisa Dibuat dari Limbah',
+      sublabel: 'Mulai dari pupuk kompos, briket kayu, pestisida alami, sampai sabun dan disinfektan aromatik.',
       icon: (
         <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18.2" />
@@ -30,8 +30,8 @@ export default function StatsSection() {
       id: 3,
       value: 500,
       suffix: '+',
-      label: 'Petani & Penyuling Mitra Terbantu',
-      sublabel: 'Meningkatkan pendapatan kelompok tani lokal melalui sirkular ekonomi.',
+      label: 'Penyuling & Petani Sudah Bergabung',
+      sublabel: 'Ribuan penyuling lokal kini bisa menjual limbah mereka dan menambah penghasilan dari rumah.',
       icon: (
         <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -46,8 +46,8 @@ export default function StatsSection() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <h2 className="font-display font-bold text-accent tracking-widest text-sm uppercase">Dampak Nyata</h2>
-          <p className="font-display font-extrabold text-3xl sm:text-4xl text-white">Mengapa Bioekonomi Sirkular Penting?</p>
+          <h2 className="font-display font-bold text-accent tracking-widest text-sm uppercase">Fakta Menarik</h2>
+          <p className="font-display font-extrabold text-3xl sm:text-4xl text-white">Kenapa Limbah Atsiri Sayang Kalau Dibuang?</p>
           <div className="h-1 w-20 bg-accent mx-auto rounded-full"></div>
         </div>
 

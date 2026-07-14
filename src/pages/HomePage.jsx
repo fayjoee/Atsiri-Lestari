@@ -1,7 +1,6 @@
 import HeroSection from '../components/home/HeroSection'
 import StatsSection from '../components/home/StatsSection'
 import FeaturedProducts from '../components/home/FeaturedProducts'
-import Testimonials from '../components/home/Testimonials'
 
 export default function HomePage() {
   return (
@@ -10,14 +9,12 @@ export default function HomePage() {
       {/* Hero Banner */}
       <HeroSection />
 
-      {/* Impact Statistics */}
+      {/* Fakta Menarik */}
       <StatsSection />
 
-      {/* Featured Products */}
+      {/* Limbah Pilihan */}
       <FeaturedProducts />
 
-      {/* Testimonials Slider */}
-      <Testimonials />
     </div>
   )
 }

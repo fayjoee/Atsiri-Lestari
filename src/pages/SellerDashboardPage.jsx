@@ -172,10 +172,10 @@ export default function SellerDashboardPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-gray-200/50 pb-6">
           <div className="space-y-1">
             <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-deep">
-              Portal Penjualan
+              Dapur Penjualan Limbah Atsiri
             </h1>
             <p className="text-xs sm:text-sm text-gray-500">
-              Selamat datang kembali,{' '}
+              Halo kembali,{' '}
               <span className="font-bold text-primary">
                 {sellerProfile?.store_name || profile?.full_name}
               </span>
@@ -188,23 +188,23 @@ export default function SellerDashboardPage() {
           {/* Stats Cards */}
           <div className="flex gap-3 flex-wrap">
             <div className="bg-white border border-gray-100 p-4 rounded-xl shadow-sm flex items-center space-x-3">
-              <span className="text-2xl">📦</span>
+              <span className="text-2xl">🌿</span>
               <div className="text-left">
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Produk</p>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Jenis Limbah</p>
                 <p className="font-display font-black text-primary text-lg">{products.length}</p>
               </div>
             </div>
             <div className="bg-white border border-gray-100 p-4 rounded-xl shadow-sm flex items-center space-x-3">
-              <span className="text-2xl">📊</span>
+              <span className="text-2xl">⚖️</span>
               <div className="text-left">
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Stok</p>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total Tersedia</p>
                 <p className="font-display font-black text-deep text-lg">{totalStock.toLocaleString('id-ID')}</p>
               </div>
             </div>
             <div className="bg-white border border-gray-100 p-4 rounded-xl shadow-sm flex items-center space-x-3">
-              <span className="text-2xl">💰</span>
+              <span className="text-2xl">💵</span>
               <div className="text-left">
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Nilai Inventori</p>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Estimasi Nilai</p>
                 <p className="font-display font-black text-emerald-600 text-lg">{formatPrice(totalValue)}</p>
               </div>
             </div>
@@ -229,7 +229,7 @@ export default function SellerDashboardPage() {
               )}
             </div>
             <span className="shrink-0 text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full">
-              ✓ Toko Aktif
+              ✓ Lapak Aktif
             </span>
           </div>
         )}
@@ -240,8 +240,8 @@ export default function SellerDashboardPage() {
           {/* ── Form Tambah Produk ── */}
           <div className="lg:col-span-5 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-6">
             <h3 className="font-display font-bold text-deep text-lg border-b border-gray-100 pb-3 flex items-center space-x-2">
-              <span>🌾</span>
-              <span>Tambah Produk Baru</span>
+              <span>🌿</span>
+              <span>Daftarkan Limbah Baru</span>
             </h3>
 
             {formSuccess && (
@@ -262,7 +262,7 @@ export default function SellerDashboardPage() {
               {/* Nama Produk */}
               <div className="space-y-1.5">
                 <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                  Nama Produk <span className="text-rose-500">*</span>
+                  Nama Limbah <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -294,7 +294,7 @@ export default function SellerDashboardPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                    Harga (Rp) <span className="text-rose-500">*</span>
+                    Harga per Kg (Rp) <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -308,7 +308,7 @@ export default function SellerDashboardPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                    Stok (unit) <span className="text-rose-500">*</span>
+                    Jumlah Tersedia (kg) <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -325,7 +325,7 @@ export default function SellerDashboardPage() {
               {/* MOQ */}
               <div className="space-y-1.5">
                 <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                  Min. Order (MOQ)
+                  Minimal Pembelian (kg)
                 </label>
                 <input
                   type="number"
@@ -340,13 +340,13 @@ export default function SellerDashboardPage() {
               {/* Deskripsi */}
               <div className="space-y-1.5">
                 <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                  Deskripsi <span className="text-gray-400 font-normal">(opsional)</span>
+                  Keterangan Tambahan <span className="text-gray-400 font-normal">(opsional)</span>
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDesc(e.target.value)}
                   rows={2}
-                  placeholder="Kondisi, asal daerah, kadar air, dst..."
+                  placeholder="Contoh: kondisi kering, asal Garut, kadar air &lt;12%, siap kirim..."
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm resize-none"
                 />
               </div>
@@ -365,7 +365,7 @@ export default function SellerDashboardPage() {
                     <span>Menyimpan...</span>
                   </>
                 ) : (
-                  '+ Tambah Produk'
+                  '+ Daftarkan Limbah'
                 )}
               </button>
             </form>
@@ -375,12 +375,12 @@ export default function SellerDashboardPage() {
           <div className="lg:col-span-7 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-6">
             <h3 className="font-display font-bold text-deep text-lg border-b border-gray-100 pb-3 flex items-center justify-between">
               <span className="flex items-center space-x-2">
-                <span>📋</span>
-                <span>Produk Saya</span>
+                <span>🗂️</span>
+                <span>Limbah yang Saya Jual</span>
               </span>
               {products.length > 0 && (
                 <span className="text-xs font-semibold text-gray-400 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-full">
-                  {products.length} produk
+                  {products.length} jenis
                 </span>
               )}
             </h3>
@@ -391,14 +391,14 @@ export default function SellerDashboardPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                 </svg>
-                <span className="text-sm text-gray-500">Memuat produk...</span>
+                <span className="text-sm text-gray-500">Memuat data limbah...</span>
               </div>
             ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
                 <span className="text-5xl">🌱</span>
                 <div>
-                  <p className="font-bold text-deep text-base">Belum ada produk</p>
-                  <p className="text-xs text-gray-500 mt-1">Tambah produk pertama Anda menggunakan form di sebelah kiri.</p>
+                  <p className="font-bold text-deep text-base">Belum ada limbah yang didaftarkan</p>
+                  <p className="text-xs text-gray-500 mt-1">Mulai daftarkan limbah atsiri Anda menggunakan form di sebelah kiri.</p>
                 </div>
               </div>
             ) : (
@@ -406,10 +406,10 @@ export default function SellerDashboardPage() {
                 <table className="min-w-full divide-y divide-gray-100 text-xs sm:text-sm text-left">
                   <thead>
                     <tr className="text-gray-500 font-bold">
-                      <th className="pb-3 pr-4">Nama Produk</th>
-                      <th className="pb-3 pr-4">Harga</th>
-                      <th className="pb-3 pr-4">Stok</th>
-                      <th className="pb-3 pr-4">Kategori</th>
+                      <th className="pb-3 pr-4">Nama Limbah</th>
+                      <th className="pb-3 pr-4">Harga/kg</th>
+                      <th className="pb-3 pr-4">Tersedia (kg)</th>
+                      <th className="pb-3 pr-4">Jenis</th>
                       <th className="pb-3 text-right">Aksi</th>
                     </tr>
                   </thead>
@@ -419,7 +419,7 @@ export default function SellerDashboardPage() {
                         <td className="py-3.5 pr-4">
                           <span className="font-bold text-deep block line-clamp-1">{prod.name}</span>
                           {prod.moq > 1 && (
-                            <span className="text-[10px] text-gray-400">MOQ: {prod.moq}</span>
+                            <span className="text-[10px] text-gray-400">Min. beli: {prod.moq} kg</span>
                           )}
                         </td>
                         <td className="py-3.5 pr-4 font-bold text-primary whitespace-nowrap">
@@ -440,7 +440,7 @@ export default function SellerDashboardPage() {
                             onClick={() => handleDelete(prod.id)}
                             className="text-[10px] font-bold text-rose-500 hover:text-rose-700 hover:bg-rose-50 px-2 py-1 rounded-lg transition-colors cursor-pointer"
                           >
-                            Hapus
+                            Tarik
                           </button>
                         </td>
                       </tr>

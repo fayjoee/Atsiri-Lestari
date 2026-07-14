@@ -11,9 +11,9 @@ export default function FeaturedProducts() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-end mb-12 space-y-4 md:space-y-0">
           <div className="space-y-2 text-left">
-            <h2 className="font-display font-bold text-primary tracking-widest text-sm uppercase">Produk Unggulan</h2>
+            <h2 className="font-display font-bold text-primary tracking-widest text-sm uppercase">Limbah Pilihan</h2>
             <p className="font-display font-extrabold text-3xl sm:text-4xl text-deep">
-              Solusi Terlaris dari Pengolahan Limbah
+              Yang Paling Banyak Dicari Pembeli
             </p>
             <div className="h-1 w-20 bg-accent rounded-full"></div>
           </div>
@@ -22,7 +22,7 @@ export default function FeaturedProducts() {
               to="/katalog"
               className="inline-flex items-center text-primary hover:text-primary-light font-bold transition-colors group"
             >
-              Lihat Seluruh Katalog
+              Lihat Semua Limbah →
               <svg className="w-5 h-5 ml-1 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
               </svg>

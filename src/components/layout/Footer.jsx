@@ -8,17 +8,18 @@ export default function Footer() {
           {/* Logo & Description */}
           <div className="md:col-span-2 space-y-4">
             <Link to="/" className="flex items-center space-x-3 group">
-              <svg className="w-10 h-10 transition-transform duration-300 group-hover:rotate-12" viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="30" fill="#0B3525"/>
-                <path d="M20 32 C20 22, 26 16, 32 16 C40 16, 48 24, 48 32 C48 40, 40 48, 32 48 C26 48, 20 42, 20 32 M48 32 C48 22, 42 16, 32 16 C24 16, 16 24, 16 32 C16 40, 24 48, 32 48 C42 48, 48 42, 48 32" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
-              </svg>
+              <img
+                src="/logo-dark.png"
+                alt="Atsiri Lestari"
+                className="w-10 h-10 object-contain transition-transform duration-300 group-hover:scale-110"
+              />
               <div className="flex flex-col">
                 <span className="font-display font-bold text-xl tracking-wider text-white">ATSIRI</span>
                 <span className="font-sans text-xs font-semibold text-accent tracking-widest -mt-1">LESTARI</span>
               </div>
             </Link>
             <p className="text-gray-400 max-w-md text-sm sm:text-base">
-              Atsiri Lestari adalah platform bioekonomi sirkular yang mengintegrasikan edukasi pengolahan limbah atsiri, fasilitasi transaksi komersil B2B, dan e-commerce produk ramah lingkungan berwujud.
+              Atsiri Lestari adalah toko jual beli limbah hasil penyulingan atsiri. Membantu penyuling lokal menjual ampas dan hydrosol, serta memudahkan pembeli mendapatkan bahan baku berkualitas.
             </p>
           </div>
 
