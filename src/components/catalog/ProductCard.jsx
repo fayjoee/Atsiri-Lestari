@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCartDispatch, formatPrice } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
@@ -5,6 +6,8 @@ import { useAuth } from '../../context/AuthContext'
 export default function ProductCard({ product }) {
   const dispatch = useCartDispatch()
   const { user, openLogin } = useAuth()
+  const [imgError, setImgError] = useState(false)
+
 
   const handleAddToCart = (e) => {
     e.preventDefault()
@@ -43,25 +46,32 @@ export default function ProductCard({ product }) {
           {product.categoryLabel}
         </span>
         
-        {/* Dummy image representation - we will use styled divs to represent the items since no external assets are here, giving a high-aesthetic graphic representation */}
-        <div className="w-full h-full flex items-center justify-center p-4 relative group-hover:scale-105 transition-transform duration-500">
-          <div className={`w-3/4 h-3/4 rounded-full flex items-center justify-center text-4xl shadow-inner ${
-            product.category === 'limbah-padat' ? 'bg-amber-100/60' : 
-            product.category === 'limbah-cair' ? 'bg-blue-50/80' : 'bg-emerald-50/80'
-          }`}>
-            {product.category === 'limbah-padat' ? '🪵' : 
-             product.category === 'limbah-cair' ? '💧' : '♻️'}
+        {/* Product image with fallback to emoji */}
+        {product.image && !imgError ? (
+          <img
+            src={product.image}
+            alt={product.name}
+            onError={() => setImgError(true)}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center p-4 relative group-hover:scale-105 transition-transform duration-500">
+            <div className={`w-3/4 h-3/4 rounded-full flex items-center justify-center text-4xl shadow-inner ${
+              product.category === 'limbah-padat' ? 'bg-amber-100/60' : 
+              product.category === 'limbah-cair' ? 'bg-blue-50/80' : 'bg-emerald-50/80'
+            }`}>
+              {product.category === 'limbah-padat' ? '🪵' : 
+               product.category === 'limbah-cair' ? '💧' : '♻️'}
+            </div>
+            <div className="absolute bottom-2 left-0 right-0 text-center">
+              {product.plant && (
+                <span className="text-[10px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-md">
+                  Tumbuhan: {product.plant}
+                </span>
+              )}
+            </div>
           </div>
-          
-          {/* Detailed graphics indicator */}
-          <div className="absolute bottom-2 left-0 right-0 text-center">
-            {product.plant && (
-              <span className="text-[10px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-md">
-                Tumbuhan: {product.plant}
-              </span>
-            )}
-          </div>
-        </div>
+        )}
 
         {/* Wholesale indicator */}
         {product.isWholesale && (

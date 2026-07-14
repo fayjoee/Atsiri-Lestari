@@ -11,6 +11,7 @@ export default function ProductDetailPage() {
   const dispatch = useCartDispatch()
   const { user, openLogin } = useAuth()
   const [quantity, setQuantity] = useState(1)
+  const [imgError, setImgError] = useState(false)
 
   const product = useMemo(() => {
     return getProductById(Number(id))
@@ -60,8 +61,19 @@ export default function ProductDetailPage() {
         {/* Product Details Split */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start mb-16">
           {/* Image area */}
-          <div className="bg-primary/5 rounded-3xl p-12 aspect-square flex items-center justify-center text-8xl shadow-inner select-none relative">
-            {product.category === 'limbah-padat' ? '🪵' : product.category === 'limbah-cair' ? '💧' : '♻️'}
+          <div className="bg-primary/5 rounded-3xl overflow-hidden aspect-square flex items-center justify-center shadow-inner select-none relative">
+            {product.image && !imgError ? (
+              <img
+                src={product.image}
+                alt={product.name}
+                onError={() => setImgError(true)}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-8xl">
+                {product.category === 'limbah-padat' ? '🪵' : product.category === 'limbah-cair' ? '💧' : '♻️'}
+              </span>
+            )}
             {product.isWholesale && (
               <span className="absolute top-6 right-6 bg-accent text-deep font-sans font-black text-xs uppercase tracking-wider px-3.5 py-1 rounded-lg shadow">
                 Grosir B2B Ready
