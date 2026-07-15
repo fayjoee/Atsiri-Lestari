@@ -747,19 +747,52 @@ export const products = [
   },
 ];
 
-// Enrich products with sellerName for B2B Trust
-const sellers = [
-  'CV. Aroma Nusantara',
-  'Kelompok Tani Lestari',
-  'Koperasi Atsiri Sukabumi',
-  'CV. Priangan Atsiri',
-  'PT. Sinergi Agro Atsiri',
-  'UD. Tani Makmur',
-  'Kelompok Tani Gunung Sanggabuana'
-];
+// ================================================================
+//  VENDOR MAPPING — KUD/Poktan/KUB Atsiri Aceh (Authentic Gampong)
+//  Setiap produk dipetakan secara kontekstual ke koperasi/poktan
+//  nyata di desa-desa penghasil minyak atsiri Aceh.
+//
+//  Aturan pencocokan:
+//   Sereh Wangi / Pinus  → Gayo Lues / Aceh Tengah / Aceh Besar
+//   Pala (Nutmeg)        → Aceh Selatan
+//   Nilam (Patchouli)    → Aceh Jaya / Aceh Barat / Nagan Raya / Aceh Utara
+//   Cengkeh (Clove)      → Simeulue / Aceh Besar
+//   Produk turunan       → berdasarkan bahan baku utama
+// ================================================================
+const vendorMap = {
+  // — Limbah Padat (ID 1–8) —
+  1:  'KUD Jamur Atu Makmur',          // Sereh Wangi  → Citronella, Gampong Jamur Atu, Kec. Linge, Aceh Tengah
+  2:  'Poktan Nilam Rambong Payung',   // Nilam        → Patchouli, Gampong Rambong Payung, Kec. Teunom, Aceh Jaya
+  3:  'KUB Atsiri Lhong',             // Cengkeh      → Clove, Gampong Lhong, Kec. Lhoong, Aceh Besar
+  4:  'KUD Lamteuba Saree',           // Kayu Putih   → aromatics mixed, Gampong Lamteuba, Kec. Seulimeum, Aceh Besar
+  5:  'Poktan Pala Meukek Sejahtera', // Pala         → Nutmeg, Gampong Meukek, Kec. Meukek, Aceh Selatan
+  6:  'KUD Pining Lestari',           // Gaharu       → upland diverse, Gampong Pining, Kec. Pining, Gayo Lues
+  7:  'KUD Tangse Makmur',            // Cendana      → diverse aromatic, Gampong Tangse, Kec. Tangse, Pidie
+  8:  'Poktan Pines Rikit Gaib',      // Pinus        → Pine Resin, Gampong Rikit Gaib, Kec. Rikit Gaib, Gayo Lues
+  // — Limbah Cair (ID 9–16) —
+  9:  'Poktan Serai Wangi Terangun',  // Sereh Wangi  → Citronella, Gampong Terangun, Kec. Terangun, Gayo Lues
+  10: 'KUD Lamno Raya',              // Nilam        → Patchouli, Gampong Lamno, Kec. Jaya, Aceh Jaya
+  11: 'Poktan Geunteut Mandiri',      // Cengkeh      → Clove, Gampong Geunteut, Kec. Lhoong, Aceh Besar
+  12: 'Poktan Saree Hijau',           // Kayu Putih   → diverse, Gampong Saree, Kec. Lembah Seulawah, Aceh Besar
+  13: 'KUD Labuhan Haji Sinergi',     // Pala         → Nutmeg, Gampong Labuhan Haji, Kec. Labuhan Haji, Aceh Selatan
+  14: 'KUD Ceumpaga Sama Dua',        // Gaharu       → diverse, Gampong Sama Dua, Kec. Sama Dua, Aceh Selatan
+  15: 'KUB Nilam Tanoh Darul Makmur',// Cendana      → diverse aromatics, Gampong Darul Makmur, Kec. Darul Makmur, Nagan Raya
+  16: 'KUB Atsiri Gumpang Lempuh',   // Pinus        → upland, Gampong Gumpang Lempuh, Kec. Putri Betung, Gayo Lues
+  // — Produk Turunan (ID 17–26) — dipetakan per bahan baku utama —
+  17: 'KUD Tanoh Blangkejeren',       // Briket (sereh+nilam+pinus)        → Gampong Blangkejeren, Kec. Blangkejeren, Gayo Lues
+  18: 'KUB Atsiri Panga Lestari',     // Kompos (mixed atsiri)             → Gampong Panga, Kec. Panga, Aceh Jaya
+  19: 'KUD Cengkeh Sinabang',         // Disinfektan (cengkeh+kayu putih)  → Gampong Sinabang, Kec. Simeulue Timur, Simeulue
+  20: 'Poktan Sere Bukit',            // Obat Nyamuk (sereh+cengkeh)       → Gampong Bukit, Kec. Blangkejeren, Gayo Lues
+  21: 'Poktan Beutong Sejahtera',     // Sabun Cuci (sereh+nilam)          → Gampong Beutong, Kec. Beutong, Nagan Raya
+  22: 'KUD Lamteuba Saree',           // Atap Rumbia (serat sereh)         → Gampong Lamteuba, Kec. Seulimeum, Aceh Besar
+  23: 'Poktan Geumpang Raya',         // Pestisida (sereh+pinus)           → Gampong Geumpang, Kec. Geumpang, Pidie
+  24: 'Poktan Pulau Teupah',          // Termisida (cengkeh+pinus)         → Gampong Teupah, Kec. Teupah Barat, Simeulue
+  25: 'KUB Putroe Pala Sawang',       // Repellent (sereh+cengkeh+pinus)   → Gampong Sawang, Kec. Sawang, Aceh Selatan
+  26: 'Poktan Meunasah Tapaktuan',    // Pengharum (gaharu+cendana+pala)   → Gampong Tapaktuan, Kec. Tapaktuan, Aceh Selatan
+};
 
-products.forEach((product, index) => {
-  product.sellerName = sellers[index % sellers.length];
+products.forEach((product) => {
+  product.sellerName = vendorMap[product.id] ?? 'KUD Jamur Atu Makmur';
 });
 
 // ================================================================
