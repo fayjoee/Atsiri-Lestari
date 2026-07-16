@@ -28,7 +28,7 @@ export default function StatsSection() {
     },
     {
       id: 3,
-      value: 500,
+      value: 100,
       suffix: '+',
       label: 'Penyuling & Petani Sudah Bergabung',
       sublabel: 'Ribuan penyuling lokal kini bisa menjual limbah mereka dan menambah penghasilan dari rumah.',
@@ -43,7 +43,7 @@ export default function StatsSection() {
   return (
     <section className="bg-primary py-20 relative overflow-hidden border-t border-primary-light/30">
       <div className="absolute inset-0 bg-[radial-gradient(#14553B_1px,transparent_1px)] [background-size:24px_24px] opacity-25"></div>
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <h2 className="font-display font-bold text-accent tracking-widest text-sm uppercase">Fakta Menarik</h2>
@@ -53,8 +53,8 @@ export default function StatsSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {stats.map((stat) => (
-            <div 
-              key={stat.id} 
+            <div
+              key={stat.id}
               className="bg-primary-dark/50 border border-primary-light/40 rounded-2xl p-8 text-center space-y-4 transform hover:scale-[1.03] transition-all duration-300 shadow-xl flex flex-col items-center justify-between"
             >
               <div className="w-16 h-16 rounded-full bg-primary-light/60 flex items-center justify-center mb-2">

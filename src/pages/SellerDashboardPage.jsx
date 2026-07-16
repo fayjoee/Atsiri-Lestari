@@ -3,11 +3,18 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { formatPrice } from '../context/CartContext'
+import { parseProduct } from '../lib/validations'
 
 const PRODUCT_CATEGORIES = [
   'limbah-padat',
   'limbah-cair',
   'produk-turunan',
+]
+
+const UNIT_OPTIONS = [
+  { value: 'kg',    label: 'Kilogram (kg)' },
+  { value: 'liter', label: 'Liter (liter)' },
+  { value: 'pcs',   label: 'Satuan (pcs)' },
 ]
 
 const CATEGORY_LABELS = {
@@ -32,7 +39,9 @@ export default function SellerDashboardPage() {
   const [price, setPrice]       = useState('')
   const [stock, setStock]       = useState('')
   const [category, setCat]      = useState('limbah-padat')
+  const [unit, setUnit]         = useState('kg')
   const [moq, setMoq]           = useState('1')
+  const [imageUrl, setImageUrl] = useState('')
   const [formError, setFormError]     = useState('')
   const [formSuccess, setFormSuccess] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -100,17 +109,22 @@ export default function SellerDashboardPage() {
 
     setIsSubmitting(true)
     try {
+      // Validasi dengan Zod sebelum kirim ke Supabase
+      const validated = parseProduct({
+        seller_id:   user.id,
+        name:        name.trim(),
+        description: description.trim() || null,
+        price:       Number(price),
+        stock:       Number(stock),
+        category,
+        unit,
+        moq:         Number(moq) || 1,
+        image_url:   imageUrl.trim() || null,
+      })
+
       const { error } = await supabase
         .from('products')
-        .insert({
-          seller_id:   user.id,
-          name:        name.trim(),
-          description: description.trim() || null,
-          price:       Number(price),
-          stock:       Number(stock),
-          category,
-          moq:         Number(moq) || 1,
-        })
+        .insert(validated)
 
       if (error) throw error
 
@@ -118,12 +132,17 @@ export default function SellerDashboardPage() {
       setTimeout(() => setFormSuccess(''), 4000)
 
       // Reset form
-      setName(''); setDesc(''); setPrice(''); setStock(''); setMoq('1')
+      setName(''); setDesc(''); setPrice(''); setStock(''); setMoq('1'); setImageUrl('')
 
       // Refresh daftar produk
       await fetchData()
     } catch (err) {
-      setFormError(`Gagal menambahkan produk: ${err.message}`)
+      if (err.name === 'ZodError') {
+        const msg = err.issues?.map((e) => e.message).join(' · ')
+        setFormError(`Data tidak valid: ${msg}`)
+      } else {
+        setFormError(`Gagal menambahkan produk: ${err.message}`)
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -290,11 +309,27 @@ export default function SellerDashboardPage() {
                 </select>
               </div>
 
+              {/* Satuan */}
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
+                  Satuan <span className="text-rose-500">*</span>
+                </label>
+                <select
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm bg-white"
+                >
+                  {UNIT_OPTIONS.map((u) => (
+                    <option key={u.value} value={u.value}>{u.label}</option>
+                  ))}
+                </select>
+              </div>
+
               {/* Harga & Stok */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                    Harga per Kg (Rp) <span className="text-rose-500">*</span>
+                    Harga per {unit.toUpperCase()} (Rp) <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -308,7 +343,7 @@ export default function SellerDashboardPage() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                    Jumlah Tersedia (kg) <span className="text-rose-500">*</span>
+                    Jumlah Tersedia ({unit}) <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -325,7 +360,7 @@ export default function SellerDashboardPage() {
               {/* MOQ */}
               <div className="space-y-1.5">
                 <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
-                  Minimal Pembelian (kg)
+                  Minimal Pembelian ({unit})
                 </label>
                 <input
                   type="number"
@@ -335,6 +370,30 @@ export default function SellerDashboardPage() {
                   min="1"
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm"
                 />
+              </div>
+
+              {/* URL Gambar Produk */}
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-gray-700 uppercase tracking-wider">
+                  URL Gambar <span className="text-gray-400 font-normal">(opsional)</span>
+                </label>
+                <input
+                  type="url"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://contoh.com/gambar-produk.jpg"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:border-primary text-sm"
+                />
+                {imageUrl && (
+                  <div className="mt-2 rounded-xl overflow-hidden border border-gray-100 h-24 bg-gray-50 flex items-center justify-center">
+                    <img
+                      src={imageUrl}
+                      alt="Preview"
+                      className="h-full w-full object-cover"
+                      onError={(e) => { e.target.style.display = 'none' }}
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Deskripsi */}
@@ -417,13 +476,26 @@ export default function SellerDashboardPage() {
                     {products.map((prod) => (
                       <tr key={prod.id} className="text-gray-700 hover:bg-gray-50/50 transition-colors">
                         <td className="py-3.5 pr-4">
-                          <span className="font-bold text-deep block line-clamp-1">{prod.name}</span>
-                          {prod.moq > 1 && (
-                            <span className="text-[10px] text-gray-400">Min. beli: {prod.moq} kg</span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {prod.image_url && (
+                              <img
+                                src={prod.image_url}
+                                alt={prod.name}
+                                className="w-9 h-9 rounded-lg object-cover shrink-0 border border-gray-100"
+                                onError={(e) => { e.target.style.display = 'none' }}
+                              />
+                            )}
+                            <div>
+                              <span className="font-bold text-deep block line-clamp-1">{prod.name}</span>
+                              {prod.moq > 1 && (
+                                <span className="text-[10px] text-gray-400">Min. beli: {prod.moq} {prod.unit || 'kg'}</span>
+                              )}
+                            </div>
+                          </div>
                         </td>
                         <td className="py-3.5 pr-4 font-bold text-primary whitespace-nowrap">
                           {formatPrice(prod.price)}
+                          <span className="text-[10px] text-gray-400 font-normal">/{prod.unit || 'kg'}</span>
                         </td>
                         <td className="py-3.5 pr-4">
                           <span className={`font-semibold ${prod.stock === 0 ? 'text-rose-500' : 'text-deep'}`}>
